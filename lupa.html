@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        /* Celkový kontejner */
+.search-container {
+    display: flex;
+    align-items: center;
+    border: 2px solid #ccc;
+    border-radius: 25px;
+    padding: 5px 10px;
+    width: 300px;
+    background-color: #fff;
+}
+
+/* Ikona lupy */
+.search-icon {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #333;
+    border-radius: 50%;
+    position: relative;
+    margin-right: 10px;
+}
+
+/* Rukojeť lupy */
+.search-icon::after {
+    content: '';
+    width: 15px;
+    height: 2px;
+    background-color: #333;
+    position: absolute;
+    bottom: -5px;
+    right: -9px;
+    transform: rotate(45deg);
+    transform-origin: center;
+}
+
+/* Vyhledávací vstup */
+.search-input {
+    border: none;
+    outline: none;
+    flex: 1;
+    font-size: 16px;
+    padding: 5px;
+}
+
+.search-input::placeholder {
+    color: #aaa;
+}
+
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <div class="search-icon"></div>
+        <input type="text" class="search-input" placeholder="Hledat...">
+    </div>
+    
+</body>
+</html>
