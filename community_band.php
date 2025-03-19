@@ -1,6 +1,6 @@
 <?php
 session_start();
-$conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+include 'db.php';
 
 $artistId = $_GET['id'];
 $artists = mysqli_query($conn, "SELECT * FROM artists WHERE id_artist = $artistId");
@@ -18,7 +18,7 @@ $genres = mysqli_query($conn, "SELECT * FROM artists_subgenres JOIN subgenres ON
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Blackest Crypt - Band</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
@@ -48,6 +48,7 @@ $genres = mysqli_query($conn, "SELECT * FROM artists_subgenres JOIN subgenres ON
             border-radius: 50%;
             margin-left: 50px;
             border: 3px solid #B9B9B9;
+            object-fit: cover;
         }
 
         .artist-title{
@@ -382,7 +383,9 @@ $genres = mysqli_query($conn, "SELECT * FROM artists_subgenres JOIN subgenres ON
             cursor: pointer;
         }
 
-
+        #desc-modal-button{
+            cursor: pointer;
+        }
         
 
         .profile-picture{
@@ -521,8 +524,8 @@ $genres = mysqli_query($conn, "SELECT * FROM artists_subgenres JOIN subgenres ON
 
             if(descModalButton){
                 descModalButton.addEventListener('click', function(){
-                    const closeGenreModal = document.getElementById('close-genre-modal');
-                    closeGenreModal.addEventListener('click', function(){
+                    const closeModal = document.getElementById('close-modal');
+                    closeModal.addEventListener('click', function(){
                         descModal.style.display = 'none';
                     });
                     descModal.style.display = 'flex';

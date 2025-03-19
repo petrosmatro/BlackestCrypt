@@ -1,7 +1,7 @@
 <?php
 
     session_start();
-    $conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+    include 'db.php';
 
     $spotifyArtistId = $_GET['id'];
 
@@ -15,7 +15,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Blackest Crypt - Band</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
@@ -120,6 +120,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            cursor: pointer;
         }
 
         .album-card img{
@@ -304,7 +305,6 @@
             background-color: #444;
             padding: 10px;
             border-radius: 5px;
-            cursor: pointer;
         }
 
         .album-tracks div:hover {
@@ -411,9 +411,6 @@
         }
 
         .notification{
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
             background-color: #1A1A1A;
             color: white;
             padding: 5px 20px;
@@ -421,12 +418,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .notifications{
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
             opacity: 0;
             transition: opacity 0.5s, transform 0.5s;
             transform: translateY(100%);
         }
 
-        .notification.show {
+        .notifications.show {
             opacity: 1;
             transform: translateY(0);
         }
@@ -459,6 +462,9 @@
             height: 100%;
         }
 
+        #desc-modal-button{
+            cursor: pointer;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -519,16 +525,23 @@
                 <div class="desc-btn-container">
                     <button name="desc_submit" id="desc-submit" type="submit">Submit for Approval</button>
                 </div>
-            </form>
-            
-            
+            </form> 
         </div>
     </div>
 
-    <div id="notification" class="notification">
-        <div class="circle-check"></div>
-        <p>Description was successfully submitted for approval</p>
+    <div class="notifications" id="notifications">
+        <div id="notification" class="notification">
+            <div class="circle-check"></div>
+            <p>Description was successfully submitted for approval</p>
+        </div>
+
+        <div id="notification" class="notification">
+            <div class="circle-check"></div>
+            <p>You have received 10 BlackestCoins for effort</p>
+        </div>
     </div>
+
+    
 
 
     <script>
@@ -615,7 +628,7 @@
             });
 
             function showNotification(){
-                const notification = document.getElementById('notification');
+                const notification = document.getElementById('notifications');
 
                 notification.classList.add('show');
 

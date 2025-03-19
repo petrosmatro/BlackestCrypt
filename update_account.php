@@ -1,7 +1,7 @@
 <?php
 
     session_start();
-    $conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+    include 'db.php';
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $newUsername = mysqli_real_escape_string($conn, $_POST['edit_username']);

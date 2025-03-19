@@ -1,7 +1,7 @@
 <?php
 
     session_start();
-    $conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+    include 'db.php';
 
     $desc_id = $_POST['id_description'];
     if($_SERVER['REQUEST_METHOD'] == 'POST'){

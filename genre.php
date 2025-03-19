@@ -1,7 +1,7 @@
 <?php
 
     session_start();
-    $conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+    include 'db.php';
 
 ?>
 
@@ -10,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Blackest Crypt - Genre</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
@@ -114,15 +114,45 @@
         .genre-artists a{
             text-decoration: none;
         }
+
+        .pagination{
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pagination button{
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            width: 30px;
+            height: 30px;
+            color: white;
+            background-color: #5B5B5B;
+            font-family: "Metal mania", serif;
+            cursor: pointer;
+        }
+
+        .pagination span{
+            color: white;
+        }
+
+        #prev-page span{
+            display: inline-block;
+            transform: rotate(90deg);
+        }
+
+        #next-page span{
+            display: inline-block;
+            transform: rotate(-90deg);
+        }
     </style>
 </head>
 <body>
     <?php include "header.php";?>
 
-    <div class="controls">
-        <button id="sort-asc">Sort A-Z</button>
-        <button id="sort-desc">Sort Z-A</button>
-    </div>
 
     <div class="alphabet-buttons">
         <?php
@@ -133,14 +163,21 @@
         ?>
     </div>
 
+    <div class="pagination">
+        <button id="prev-page" disabled><span>†</span></button>
+        <span id="page-info">1</span>
+        <button id="next-page"><span>†</span></button>
+    </div>
+
     <div class="genre-artists">
 
     </div>
-
+    
     <script>
         const accessToken = <?php echo json_encode($accessToken);?>;
-        let artistsData = [];
-        let filteredArtists = [];
+        let currentPage = 1;
+        let selectedLetter = null;  
+        let allArtists = [];
 
         function getGenreNameFromURL(){
             const params = new URLSearchParams(window.location.search);
@@ -148,31 +185,32 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const genre = getGenreNameFromURL();
             
 
-            const artistsData = await fetchArtists(genre);
-            filteredArtists = artistsData;
+            await loadAllArtists();
 
-            displayArtists(filteredArtists);
-
-            document.getElementById('sort-asc').addEventListener('click', () => {
-                filteredArtists.sort((a, b) => a.name.localeCompare(b.name));
-                displayArtists(filteredArtists);
+            document.getElementById('next-page').addEventListener('click', () => {
+                if ((currentPage * 50) < getFilteredArtists().length) {
+                    currentPage++;
+                    displayArtists(getCurrentPageArtists());
+                }
             });
 
-            document.getElementById('sort-desc').addEventListener('click', () => {
-                filteredArtists.sort((a, b) => b.name.localeCompare(a.name));
-                displayArtists(filteredArtists);
+            document.getElementById('prev-page').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayArtists(getCurrentPageArtists());
+                }
             });
 
-            // Kliknutí na tlačítka pro písmena
+            
+
             const letterButtons = document.querySelectorAll('.letter-btn');
             letterButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    const letter = button.getAttribute('data-letter');
-                    filteredArtists = artistsData.filter(artist => artist.name.charAt(0).toUpperCase() === letter);
-                    displayArtists(filteredArtists);
+                    selectedLetter = button.getAttribute('data-letter'); 
+                    currentPage = 1;
+                    displayArtists(getCurrentPageArtists());
                 });
             });
 
@@ -203,12 +241,49 @@
                 `;
                 artistsDiv.appendChild(artistCard);
             });
+
+            document.getElementById('page-info').textContent = `${currentPage}`;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = (currentPage * 50) >= getFilteredArtists().length;
+        }
+
+        
+
+        
+
+        async function loadAllArtists() {
+            const genre = getGenreNameFromURL();
+            let offset = 0;
+            let allData = [];
+
+            while (offset < 500) {
+                const data = await fetchArtists(genre, offset);
+                if (data.length === 0) break;
+                allData = [...allData, ...data];
+                offset += 50;
+            }
+
+            allArtists = allData;
+            displayArtists(getCurrentPageArtists());
+        }
+
+        function getFilteredArtists() {
+            if (selectedLetter) {
+                return allArtists.filter(artist => artist.name.charAt(0).toUpperCase() === selectedLetter);
+            }
+            return allArtists;
+        }
+
+        function getCurrentPageArtists() {
+            const filtered = getFilteredArtists();
+            const startIndex = (currentPage - 1) * 50;
+            return filtered.slice(startIndex, startIndex + 50);
         }
         
 
-        async function fetchArtists(genre){
+        async function fetchArtists(genre, offset) {
             const encodedGenre = genre.replace(/ /g, '-');
-            const response = await fetch(`https://api.spotify.com/v1/search?q=genre:${encodedGenre}&type=artist&limit=50&offset=50`, {
+            const response = await fetch(`https://api.spotify.com/v1/search?q=genre:${encodedGenre}&type=artist&limit=50&offset=${offset}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },

@@ -1,77 +1,77 @@
 <style>
     .comment-container {
-    background-color: #5B5B5B;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    width: 600px;
-    margin: 10px 0;
-}
+        background-color: #5B5B5B;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 600px;
+        margin: 10px 0;
+    }
 
-.btn-container{
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-}
+    .btn-container{
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+    }
 
-.btn-container button{
-    background-color: red;
-    border: none;
-    border-radius: 20px;
-    width: 80px;
-    height: 30px;
-    color: white;
-}
+    .btn-container button{
+        background-color: red;
+        border: none;
+        border-radius: 20px;
+        width: 80px;
+        height: 30px;
+        color: white;
+    }
 
 
 
-.comment-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
+    .comment-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
 
-.profile-pic {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 15px;
-    object-fit: cover;
-}
+    .profile-pic {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 15px;
+        object-fit: cover;
+    }
 
-.comment-author-info {
-    display: flex;
-    flex-direction: column;
-}
+    .comment-author-info {
+        display: flex;
+        flex-direction: column;
+    }
 
-.comment-author {
-    font-weight: bold;
-    color: white;
-}
+    .comment-author {
+        font-weight: bold;
+        color: white;
+    }
 
-.comment-date {
-    color: #888;
-    font-size: 0.9em;
-}
+    .comment-date {
+        color: #888;
+        font-size: 0.9em;
+    }
 
-.comment-body {
-    margin-bottom: 10px;
-    color: white;
-}
+    .comment-body {
+        margin-bottom: 10px;
+        color: white;
+    }
 
-.comment-body p {
-    margin: 0;
-    line-height: 1.5;
-}
+    .comment-body p {
+        margin: 0;
+        line-height: 1.5;
+    }
 
-.no-comments{
-    color: white;
-}
+    .no-comments{
+        color: white;
+    }
 
 </style>
 
 <?php
-$conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+include 'db.php';
 session_start();
 
 $artistId = $_GET['id'];
@@ -86,7 +86,7 @@ if ($result->num_rows > 0) {
         ?>
         <div class="comment-container" id="comment-<?php echo $row['id_com'];?>">
             <div class="comment-header">
-                <img src="profileimgs/<?php echo $row['image'];?>" alt="Profilový obrázek" class="profile-pic">
+                <img src="profileImgs/<?php echo $row['image'];?>" alt="" class="profile-pic">
                 <div class="comment-author-info">
                     <span class="comment-author"><?php echo $row['username'];?></span>
                     <span class="comment-date"><?php echo $row['created_at'];?></span>

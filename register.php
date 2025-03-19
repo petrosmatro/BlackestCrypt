@@ -1,6 +1,6 @@
 <?php
 
-    $conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+    include 'db.php';
 
     if(isset($_POST['submit'])){
         $username = mysqli_real_escape_string($conn, $_POST['username']);
@@ -20,13 +20,11 @@
 
 
         if($email_count == 0 && $user_count == 0 && $pass == $cpass){
-            session_start();
-            $_SESSION['email'] = $email;
             $insert = "INSERT INTO users(username, email, password)
                 VALUES('$username', '$email', '$pass')";
 
                 mysqli_query($conn, $insert);
-                header('location:spotify_link.php');
+                header('location:login.php');
         }else{
             if($email_count > 0){
                 $error1 = 'This email is already in use!';
@@ -53,7 +51,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Blackest Crypt - Register</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -142,29 +140,48 @@
             padding-top: 10px;
             padding-bottom: 10px;
             cursor: pointer;
-            position: relative; /* Pro umístění rámečku */
+            position: relative;
             outline: none;
             transition: box-shadow 0.3s ease;
         }
 
         .register-container button::after {
-            content: ''; /* Pseudo-element je prázdný */
-            position: absolute; /* Umístění kolem tlačítka */
-            top: -5px; /* Vzdálenost od horního okraje */
-            left: -5px; /* Vzdálenost od levého okraje */
-            right: -5px; /* Vzdálenost od pravého okraje */
-            bottom: -5px; /* Vzdálenost od spodního okraje */
-            border: 2px solid white; /* Rámeček */
-            border-radius: 35px; /* Zaoblení okrajů rámečku */
-            opacity: 0; /* Rámeček je na začátku neviditelný */
-            transition: opacity 0.3s ease; /* Plynulý přechod viditelnosti */
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border: 2px solid white;
+            border-radius: 35px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        /* Zobrazit rámeček při najetí myši */
         .register-container button:hover::after {
-            opacity: 1; /* Rámeček se zobrazí */
+            opacity: 1;
         }
 
+        .error-messages{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 75px;
+            margin-bottom: 20px;
+        }
+
+        .error-msg{
+            width: 300px;
+            height: 50px;
+            background-color: #e04350;
+            display: flex;
+            border-radius: 35px;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
         
     </style>
 </head>
@@ -205,6 +222,23 @@
             <div class="vertical"></div>
             <div class="horizontal"></div>
         </div>
+    </div>
+
+    <div class="error-messages">
+        <?php if(isset($error1)){?>
+            <div class="error-msg">
+                <span><?php echo $error1; ?></span>
+            </div>
+        <?php } if(isset($error2)){?>
+            <div class="error-msg">
+                <span><?php echo $error2; ?></span>
+            </div>
+        <?php } if(isset($error3)){?>
+            <div class="error-msg">
+                <span><?php echo $error3; ?></span>
+            </div>
+        <?php }?>
+        
     </div>
 </body>
 </html>

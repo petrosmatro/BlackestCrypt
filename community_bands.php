@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-$conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+include 'db.php';
 
 $bands = mysqli_query($conn, 'SELECT * FROM artists ORDER BY id_artist DESC');
 
@@ -14,7 +14,7 @@ $bands = mysqli_query($conn, 'SELECT * FROM artists ORDER BY id_artist DESC');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Blackest Crypt - Bands</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
@@ -73,6 +73,7 @@ $bands = mysqli_query($conn, 'SELECT * FROM artists ORDER BY id_artist DESC');
             border-radius: 50%;
             border: 3px solid #B9B9B9;
             margin-left: 10px;
+            object-fit: cover;
         }
 
         .bands{

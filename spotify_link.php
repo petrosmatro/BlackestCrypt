@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Blackest Crypt - Link</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,27 +73,27 @@
             padding-top: 10px;
             padding-bottom: 10px;
             cursor: pointer;
-            position: relative; /* Pro umístění rámečku */
+            position: relative;
             outline: none;
             transition: box-shadow 0.3s ease;
         }
 
         .login-container button::after {
-            content: ''; /* Pseudo-element je prázdný */
-            position: absolute; /* Umístění kolem tlačítka */
-            top: -5px; /* Vzdálenost od horního okraje */
-            left: -5px; /* Vzdálenost od levého okraje */
-            right: -5px; /* Vzdálenost od pravého okraje */
-            bottom: -5px; /* Vzdálenost od spodního okraje */
-            border: 2px solid white; /* Rámeček */
-            border-radius: 35px; /* Zaoblení okrajů rámečku */
-            opacity: 0; /* Rámeček je na začátku neviditelný */
-            transition: opacity 0.3s ease; /* Plynulý přechod viditelnosti */
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border: 2px solid white;
+            border-radius: 35px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        /* Zobrazit rámeček při najetí myši */
+        
         .login-container button:hover::after {
-            opacity: 1; /* Rámeček se zobrazí */
+            opacity: 1;
         }
     </style>
 </head>
@@ -117,7 +117,7 @@
         document.getElementById("spotify-connect").addEventListener("click", function () {
             
             const clientId = "2810eaa769ff470d912020b8ac069eeb";
-            const redirectUri = "http://localhost/workspace/BlackestCrypt/spotify_callback.php";
+            const redirectUri = "https://blackest-crypt.com/spotify_callback.php";
             const scope = "user-read-email playlist-read-private";
 
             const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}`;

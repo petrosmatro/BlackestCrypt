@@ -1,7 +1,7 @@
 <?php
 
     session_start();
-    $conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+    include 'db.php';
     $metal = mysqli_query($conn, "SELECT * FROM subgenres WHERE genre_id = 1");
     $rock = mysqli_query($conn, "SELECT * FROM subgenres WHERE genre_id = 2");
     $punk = mysqli_query($conn, "SELECT * FROM subgenres WHERE genre_id = 3");
@@ -17,7 +17,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Blackest Crypt - Genres</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,7 +47,7 @@
             border-radius: 25px;
             overflow: hidden;
             cursor: pointer;
-            position: relative; /* Pro umístění rámečku */
+            position: relative;
             transition: transform 0.2s ease;
         }
 
@@ -62,21 +62,21 @@
         }
 
         .genre-wrapper::after {
-            content: ''; /* Vytvoří rámeček */
+            content: '';
             position: absolute;
-            top: -5px; /* Vzdálenost od obalového prvku */
+            top: -5px;
             left: -5px;
             right: -5px;
             bottom: -5px;
-            border: 2px solid white; /* Rámeček */
-            border-radius: 30px; /* Přizpůsobení zaoblení */
-            pointer-events: none; /* Rámeček neblokuje interakce */
-            opacity: 0; /* Skrytý rámeček */
+            border: 2px solid white;
+            border-radius: 30px;
+            pointer-events: none;
+            opacity: 0;
             transition: opacity 0.3s ease;
         }
 
         .genre-wrapper:hover::after {
-            opacity: 1; /* Zobrazení rámečku při hover */
+            opacity: 1;
         }
 
         .genre-cover{
@@ -105,13 +105,13 @@
 
 
         .modal{
-            display: none; /* Skryté okno */
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); /* Zatmavení pozadí */
+            background-color: rgba(0, 0, 0, 0.7);
             justify-content: center;
             align-items: center;
             z-index: 1000;

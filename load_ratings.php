@@ -1,6 +1,6 @@
 <?php
 
-$conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+include 'db.php';
 session_start();
 
 $spotifyArtistId = $_GET['id'];

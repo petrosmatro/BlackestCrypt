@@ -1,7 +1,7 @@
 <?php
 
     session_start();
-    $conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+    include 'db.php';
     
 
 
@@ -12,7 +12,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Blackest Crypt - Bands</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -131,6 +131,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 30px;
             margin-top: 40px;
         }
 
@@ -142,6 +143,16 @@
             border-radius: 20px;
         }
 
+        .create-band-link{
+            text-decoration: none;
+            color: black;
+            background-color: #43A35D;
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
+
+
+
     </style>
 </head>
 <body>
@@ -150,13 +161,13 @@
 
     <div class="link-container">
         <a class="community-bands-a" href="community_bands.php">Community Bands Archive</a>
+        <a class="create-band-link" href="create_band.php">Create a Band</a>
     </div>
     
     <div class="search-bar">
         <div class="search-button" id="search-button"></div>
         <input type="text" id="search-input" placeholder="Search for some brutal freaks...">
     </div>
-
 
     <div class="results" id="results"></div>
     <script>
@@ -192,6 +203,37 @@
             });
 
 
+        });
+
+        document.getElementById("search-input").addEventListener('keypress', async (event) =>{
+            if(event.key === "Enter"){
+                const query = document.getElementById("search-input").value;
+                const artists = await searchArtists(query);
+
+                const resultsDiv = document.getElementById("results");
+                resultsDiv.innerHTML = '';
+
+                if (artists.length === 0) {
+                    resultsDiv.innerHTML = '<p>No results.</p>';
+                    return;
+                }
+
+                artists.forEach(artist => {
+                    const artistCard = document.createElement('div');
+                    artistCard.innerHTML = `
+                        <a href="band.php?id=${artist.id}">
+                            <div class="artist-card">
+                                <img src="${artist.images[0]?.url || 'placeholder.jpg'}" alt="${artist.name}">
+                                <div class="artist-title">
+                                    <p class="artist-name">${artist.name}</p>
+                                    <p class="artist-genres">${artist.genres.slice(0, 2).join(', ')}</p>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                    resultsDiv.appendChild(artistCard);
+                });
+            }
         });
 
         async function searchArtists(query){

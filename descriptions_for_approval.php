@@ -1,10 +1,10 @@
 <?php
 
     session_start();
-    $conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+    include 'db.php';
     
 
-    $descriptions = mysqli_query($conn, "SELECT * FROM spotify_descriptions_for_approval JOIN users ON spotify_descriptions_for_approval.desc_author = users.id_user");
+    $descriptions = mysqli_query($conn, "SELECT * FROM spotify_descriptions_for_approval JOIN users ON spotify_descriptions_for_approval.desc_author = users.id_user ORDER BY id_desc DESC");
 
 ?>
 
@@ -13,7 +13,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Blackest Crypt - Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
@@ -33,11 +33,13 @@
             border-radius: 15px;
             padding: 20px;
             display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
             gap: 10px;
         }
 
         .description-card{
-            width: 200px;
+            width: 100%;
             height: 130px;
             overflow: hidden;
             border-radius: 15px;
@@ -168,13 +170,16 @@
 
         .modal-bottom button{
             margin-top: 20px;
-            background-color: white;
-            color: black;
             font-family: "Metal mania", serif;
             border-radius: 20px;
             padding: 10px 15px;
             border: none;
             cursor: pointer;
+        }
+
+        .approve-btn{
+            background-color: white;
+            color: black;
         }
 
         .modal-desc-container{
@@ -194,6 +199,67 @@
             height: 100%;
         }
 
+        .notification{
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            opacity: 0;
+            transition: opacity 0.5s, transform 0.5s;
+            transform: translateY(100%);
+            background-color: #1A1A1A;
+            color: white;
+            padding: 5px 20px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .circle-check{
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            background-color: #54c772;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .circle-check::before {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 8px;
+            border: solid #1A1A1A;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            
+        }
+
+        .caption-container{
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            color: white;
+            margin-top: 30px;
+        }
+
+        .caption-container h2{
+            margin: 0;
+        }
+
+        .delete-btn{
+            background-color: #e04350;
+            color: white;
+        }
+
     </style>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -201,6 +267,9 @@
 <body>
     <?php include "header.php";?>
 
+    <div class="caption-container">
+        <h2>Spotify Descriptions for Approval</h2>
+    </div>
     <div class="descriptions-container">
         <?php foreach($descriptions as $desc){?>
             <div class="description-card">
@@ -238,12 +307,20 @@
                         <div class="modal-desc-container">
                             <p class="modal-desc-content"></p>
                         </div>
-                        <button id="confirm-desc">Pin the Description to the Band</button>
+                        <div class="modal-btns-container">
+                            <button id="confirm-desc" class="approve-btn">Pin the Description to the Band</button>
+                            <button id="delete-desc" type="button" class="delete-btn">Delete the Description</button>
+                        </div>
                     </div>
                 </form>
                 
             </div>
         </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <div class="circle-check"></div>
+        <p>Description was successfully approved</p>
     </div>
 
     <script>
@@ -306,13 +383,13 @@
         });
 
         closeButton.addEventListener('click', () => {
-            modal.style.display = 'none';
+            descModal.style.display = 'none';
         });
 
         
         window.addEventListener('click', (event) => {
             if (event.target === modal) {
-                modal.style.display = 'none';
+                descModal.style.display = 'none';
             }
         });
 
@@ -320,6 +397,15 @@
             event.preventDefault();
 
             var idDescription = $('#id-description').val();
+            var descriptionCardToRemove;
+
+            
+            descriptionCards.forEach(card => {
+                const descriptionId = card.querySelector('.description-id').value;
+                if (descriptionId === idDescription) {
+                    descriptionCardToRemove = card;
+                }
+            });
 
             $.ajax({
                 url: 'approve_desc.php',
@@ -327,9 +413,53 @@
                 data: {id_description: idDescription},
                 success: function(){
                     descModal.style.display = 'none';
+
+                    if (descriptionCardToRemove) {
+                        descriptionCardToRemove.remove();
+                    }
+
+                    showNotification();
                 }
             });
         });
+
+        $('#delete-desc').on('click', function(){
+            var idDescription = $('#id-description').val();
+            var descriptionCardToRemove;
+
+            
+            descriptionCards.forEach(card => {
+                const descriptionId = card.querySelector('.description-id').value;
+                if (descriptionId === idDescription) {
+                    descriptionCardToRemove = card;
+                }
+            });
+
+            $.ajax({
+                url: 'delete_desc.php',
+                type: 'POST',
+                data: {id_description: idDescription},
+                success: function(){
+                    descModal.style.display = 'none';
+
+                    if (descriptionCardToRemove) {
+                        descriptionCardToRemove.remove();
+                    }
+                }
+            });
+        });
+
+        
+
+        function showNotification(){
+            const notification = document.getElementById('notification');
+
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
     </script>
 </body>
 </html>

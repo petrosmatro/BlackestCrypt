@@ -1,7 +1,7 @@
 <?php
 
     session_start();
-    $conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+    include 'db.php';
     
     if(isset($_POST['submit'])){
         $email = mysqli_real_escape_string($conn, $_POST['email']);
@@ -20,33 +20,39 @@
         }
         else if($pass_count == 0){
             $error2 = "Wrong password!!";
-        }else{
+        } else{
             
             $row = mysqli_fetch_array($result);
-            $userId = $row['id_user'];
-            $accessToken = $row['spotify_access_token'];
-            $refreshToken = $row['spotify_refresh_token'];
-            $expiresAt = $row['spotify_expires_at'];
+            if(is_null($row['spotify_access_token'])){
+                $_SESSION['user_id'] = $row['id_user'];
+                header('location:spotify_link.php');
+            } else{
+                $userId = $row['id_user'];
+                $accessToken = $row['spotify_access_token'];
+                $refreshToken = $row['spotify_refresh_token'];
+                $expiresAt = $row['spotify_expires_at'];
 
-            if($accessToken && $expiresAt > time()){
-                $_SESSION['spotify_access_token'] = $accessToken;
-            } elseif($refreshToken){
-                $newTokenData = refreshSpotifyToken($refreshToken);
+                if($accessToken && $expiresAt > time()){
+                    $_SESSION['spotify_access_token'] = $accessToken;
+                } elseif($refreshToken){
+                    $newTokenData = refreshSpotifyToken($refreshToken);
 
-                if($newTokenData){
-                    $_SESSION['spotify_access_token'] = $newTokenData['access_token'];
+                    if($newTokenData){
+                        $_SESSION['spotify_access_token'] = $newTokenData['access_token'];
 
-                    $newExpiresAt = time() + $newTokenData['expires_in'];
-                    $updateSql = "UPDATE users SET spotify_access_token = ?, spotify_expires_at = ? WHERE id_user = ?";
-                    $updateStmt = $conn->prepare($updateSql);
-                    $updateStmt->bind_param("sii", $newTokenData['access_token'], $newExpiresAt, $userId);
-                    $updateStmt->execute();
-                    $updateStmt->close();
+                        $newExpiresAt = time() + $newTokenData['expires_in'];
+                        $updateSql = "UPDATE users SET spotify_access_token = ?, spotify_expires_at = ? WHERE id_user = ?";
+                        $updateStmt = $conn->prepare($updateSql);
+                        $updateStmt->bind_param("sii", $newTokenData['access_token'], $newExpiresAt, $userId);
+                        $updateStmt->execute();
+                        $updateStmt->close();
+                    }
                 }
+                $_SESSION['user_id'] = $userId;
+                
+                header('location:main.php');
             }
-            $_SESSION['user_id'] = $userId;
             
-            header('location:main.php');
         }
     }
 
@@ -83,7 +89,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Blackest Crypt - Login</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -216,6 +222,24 @@
             border-radius: 20px;
             padding: 5px 20px;
         }
+
+        .error-messages{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .error-msg{
+            width: 300px;
+            height: 50px;
+            background-color: #e04350;
+            display: flex;
+            border-radius: 35px;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -245,6 +269,18 @@
             <div class="vertical"></div>
             <div class="horizontal"></div>
         </div>
+    </div>
+
+    <div class="error-messages">
+        <?php if(isset($error)){?>
+            <div class="error-msg">
+                <span><?php echo $error; ?></span>
+            </div>
+        <?php } if(isset($error2)){?>
+            <div class="error-msg">
+                <span><?php echo $error2; ?></span>
+            </div>
+        <?php }?>
     </div>
 
     <div class="register-container">

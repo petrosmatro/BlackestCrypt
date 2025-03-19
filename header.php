@@ -1,15 +1,4 @@
 <header>
-    <div class="nav-items">
-        <a href="bands.php">Bands</a>
-        <a href="genres.php">Genres</a>
-        <div class="logo-container">
-            <a href="main.php" class="logo-a">
-                <img src="staticImgs/logo.png" alt="">
-            </a>   
-        </div>
-        <a href="">Quizzes</a>
-        <a href="">About Us</a>
-    </div>
     <?php
         if(isset($_SESSION['user_id'])){
             $userId = $_SESSION['user_id'];
@@ -18,10 +7,31 @@
             $username = $user['username'];
             $image = $user['image'];
             $user_type = $user['user_type'];
+            $userBadges = mysqli_query($conn, "SELECT * FROM users_badges JOIN badges ON users_badges.badge = badges.id_badge WHERE user = '$_SESSION[user_id]'");
     ?>
+    <div class="nav-items">
+        <a href="bands.php">Bands</a>
+        <a href="genres.php">Genres</a>
+        <div class="logo-container">
+            <a href="main.php" class="logo-a">
+                <img src="staticImgs/logo.png" alt="">
+            </a>   
+        </div>
+        <a href="quizzes.php">Quizzes</a>
+        <a href="about_us.php">About Us</a>
+    </div>
+    
         <div id="user-info" class="user-items" onclick="toggleMenu();">
             <img id="user-image" src="profileImgs/<?php echo $image; ?>" alt="">
-            <span id="user-name"><?php echo $username; ?></span>
+            <div class="username-badges">
+                <span id="user-name"><?php echo $username; ?></span>
+                <div class="badges">
+                    <?php foreach($userBadges as $ub){?>
+                        <img src="badges/<?php echo $ub['badge_image'];?>" alt="">
+                    <?php }?>
+                </div>
+                
+            </div>
         </div>
     
         <div class="sub-menu-wrap" id="subMenu">
@@ -32,7 +42,11 @@
                 </a>
                 <?php if($user_type == 'admin'){?>
                     <a href="descriptions_for_approval.php" class="sub-menu-link">
-                        <p>Descriptions for Approval</p>
+                        <p>Spotify Descriptions for Approval</p>
+                        <span>></span>
+                    </a>
+                    <a href="community_descriptions_for_approval.php" class="sub-menu-link">
+                        <p>Community Descriptions for Approval</p>
                         <span>></span>
                     </a>
                 <?php }?>
@@ -43,9 +57,13 @@
             </div>
         </div>
     <?php } else{?>
+        <div class="not-logged-info">
+            <h3>You must be logged in to access this page content.</h3>
+        </div>
         <a href="login.php" id="login-button" class="login-btn">Log In</a>
     <?php }?>
 </header>
+
 
 <script>
 
@@ -57,6 +75,22 @@
     function toggleMenu(){
         subMenu.classList.toggle("open-menu");
     }
+
+    function checkSpotifyToken() {
+        fetch('check_token.php')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                if (data.status === 'success') {
+                    console.log('Spotify token updated:', data.access_token);
+                }
+            })
+            .catch(error => console.error('Error refreshing token:', error));
+    }
+
+    setInterval(checkSpotifyToken, 300000);
+
+    checkSpotifyToken();
 </script>
 
 <style>
@@ -67,6 +101,19 @@
         position: relative;
     }
 
+    .not-logged-info{
+        color: white;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .not-logged-info h3{
+        margin: 0;
+    }
+
     .sub-menu-wrap{
         position: absolute;
         top: 100%;
@@ -74,7 +121,7 @@
         width: 220px;
         display: none;
         opacity: 0;
-        transform: scale(0.8); /* Zmenšíme menu */
+        transform: scale(0.8);
         transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
@@ -162,9 +209,10 @@
         gap: 5px;
         right: 80px;
         top: 23px;
+        cursor: pointer;
     }
 
-    .user-items img{
+    .user-items > img{
         height: 100%;
         width: 50px;
         border-radius: 50%;
@@ -173,7 +221,27 @@
 
     .user-items span{
         color: white;
+        margin: 0;
     }
+
+    .username-badges{
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .badges{
+        display: flex;
+        align-items: center;
+    }
+
+    .username-badges img{
+        height: 20px;
+        width: 20px;
+        object-fit: cover;
+    }
+
 
     .login-btn{
         position: absolute;

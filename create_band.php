@@ -1,6 +1,6 @@
 <?php
 session_start();
-$conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+include 'db.php';
 
 $genresQuery = "SELECT * FROM genres";
 $genresResult = mysqli_query($conn, $genresQuery);
@@ -51,6 +51,7 @@ if(isset($_POST['upload'])){
             mysqli_query($conn, "INSERT INTO artists_subgenres (id_artist, id_sub) VALUES ($artistId, $genreId)");
         }
     }
+    header('Location: community_bands.php');
     
 }
 
@@ -61,7 +62,7 @@ if(isset($_POST['upload'])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Blackest Crypt - Create Band</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -244,6 +245,10 @@ if(isset($_POST['upload'])){
             border-radius: 30px;
         }
 
+        .artist-cover img{
+            object-fit: cover;
+        }
+
         .subgenre-list{
             background-color: #3A3A3A;
             border-radius: 15px;
@@ -304,6 +309,7 @@ if(isset($_POST['upload'])){
         .album-image-input-container img{
             width: 100%;
             height: 100%;
+            object-fit: cover;
         }
 
         .modal-content button {
@@ -333,6 +339,7 @@ if(isset($_POST['upload'])){
             width: 100px;
             border-radius: 10px;
             border: 2px solid #868686;
+            object-fit: cover;
         }
 
         .album-card p{
@@ -453,13 +460,13 @@ if(isset($_POST['upload'])){
         <div class="artist-preview">
             <div class="top-part">
                 <div class="artist-cover">
-                    <input type="file" id="artist-cover-input" name="artist_cover">
+                    <input type="file" id="artist-cover-input" name="artist_cover" accept="image/*" required>
                     <label for="artist-cover-input" id="artist-cover-label">+</label>
                 </div>
                 <div class="artist-title">
                     <label for="artist-name">
                         <h4>Artist name</h4>
-                        <input type="text" name="artist_name" id="artist-name" class="artist-name">
+                        <input type="text" name="artist_name" id="artist-name" class="artist-name" required>
                     </label>
                     <div class="add-genre-container">
                         <h4>Add genre</h4>

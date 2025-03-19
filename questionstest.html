@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tvorba Kvízu</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #333; color: white; }
+        .container { width: 80%; margin: auto; }
+        .question-bank, .quiz-area { border: 1px solid #777; padding: 10px; margin-bottom: 10px; }
+        .answer { display: flex; align-items: center; margin-top: 5px; }
+        .answer input { margin-right: 10px; }
+        .remove-btn { margin-left: 10px; color: red; cursor: pointer; }
+        .image-preview { max-width: 100px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Vytvořte svůj kvíz</h1>
+
+    <div class="question-bank">
+        <h2>Seznam otázek</h2>
+        <ul id="question-list"></ul>
+        <button id="add-question">+ Přidat otázku</button>
+    </div>
+    
+
+    <div class="quiz-area">
+        <h2>Upravit otázku</h2>
+        <input type="text" id="question-text" placeholder="Zadejte otázku">
+        <input type="file" id="image-upload">
+        <img id="image-preview" class="image-preview" style="display:none;"/>
+        
+        <h3>Odpovědi:</h3>
+        <div id="answers"></div>
+        <button id="add-answer">+ Přidat odpověď</button>
+    </div>
+
+    <button id="finish">Dokončit</button>
+</div>
+
+<script>
+$(document).ready(function() {
+    let questions = [];
+    let currentQuestionIndex = null;
+
+    // Přidání nové otázky
+    $("#add-question").click(function() {
+        let question = { text: "", image: "", answers: [] };
+        questions.push(question);
+        updateQuestionList();
+
+        // Automatický scroll dolů
+        $(".question-bank").animate({ scrollTop: $(".question-bank")[0].scrollHeight }, 300);
+    });
+
+
+    // Aktualizace seznamu otázek
+    function updateQuestionList() {
+        $("#question-list").empty(); // Vymazání seznamu
+        questions.forEach((q, index) => {
+            let questionText = q.text.trim() ? q.text : `Otázka ${index + 1}`;
+            $("#question-list").append(`<li data-index="${index}" class="question-item">${questionText}</li>`);
+        });
+
+        // Přesunutí tlačítka na konec
+        $("#question-list").after($("#add-question"));
+    }
+
+
+    // Kliknutí na otázku v seznamu
+    $(document).on("click", ".question-item", function() {
+        currentQuestionIndex = $(this).data("index");
+        loadQuestion();
+    });
+
+    // Načtení otázky
+    function loadQuestion() {
+        let question = questions[currentQuestionIndex];
+        $("#question-text").val(question.text);
+        $("#image-preview").attr("src", question.image).toggle(!!question.image);
+        $("#answers").empty();
+        question.answers.forEach((answer, index) => {
+            $("#answers").append(`<div class="answer"><input type="text" value="${answer}" class="answer-input" data-index="${index}"> <span class="remove-btn" data-index="${index}">✖</span></div>`);
+        });
+    }
+
+    // Změna textu otázky
+    $("#question-text").on("input", function() {
+        if (currentQuestionIndex !== null) {
+            questions[currentQuestionIndex].text = $(this).val();
+            updateQuestionList(); // Aktualizuje seznam otázek
+        }
+    });
+
+
+    // Nahrání obrázku
+    $("#image-upload").on("change", function(event) {
+        if (currentQuestionIndex !== null) {
+            let formData = new FormData();
+            formData.append("image", event.target.files[0]);
+
+            $.ajax({
+                url: "upload.php",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    questions[currentQuestionIndex].image = response;
+                    $("#image-preview").attr("src", response).show();
+                }
+            });
+        }
+    });
+
+    // Přidání odpovědi
+    $("#add-answer").click(function() {
+        if (currentQuestionIndex !== null) {
+            questions[currentQuestionIndex].answers.push("");
+            loadQuestion();
+        }
+    });
+
+    // Změna textu odpovědi
+    $(document).on("input", ".answer-input", function() {
+        let index = $(this).data("index");
+        questions[currentQuestionIndex].answers[index] = $(this).val();
+    });
+
+    // Odebrání odpovědi
+    $(document).on("click", ".remove-btn", function() {
+        let index = $(this).data("index");
+        questions[currentQuestionIndex].answers.splice(index, 1);
+        loadQuestion();
+    });
+
+    // Odeslání do databáze
+    $("#finish").click(function() {
+        $.ajax({
+            url: "save_quiz.php",
+            type: "POST",
+            data: { questions: JSON.stringify(questions) },
+            success: function(response) {
+                alert("Kvíz uložen!");
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>

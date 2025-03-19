@@ -1,12 +1,11 @@
 <?php
 
 session_start();
-$conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+include 'db.php';
 
 if (isset($_GET['genre_id'])) {
     $genreId = $_GET['genre_id'];
     
-    // Načítání podžánrů pro daný žánr
     $sql = "SELECT * FROM subgenres WHERE genre_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $genreId);

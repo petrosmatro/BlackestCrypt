@@ -1,6 +1,6 @@
 <?php
 session_start();
-$conn = mysqli_connect('localhost', 'root', '', 'blackest_crypt');
+include 'db.php';
 
 $spotifyArtistId = $_GET['id'];
 $rating_type = $_POST['rating_type'];
